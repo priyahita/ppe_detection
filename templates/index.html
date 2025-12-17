@@ -1,54 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>PPE Detection</title>
-<style>
-body { background:#111; color:white; text-align:center; font-family:Arial; }
-button { padding:15px 30px; font-size:18px; margin:10px; border:none; border-radius:8px; cursor:pointer; }
-.start { background:#00c853; }
-.stop { background:#d50000; }
-img { border:3px solid red; width:640px; margin-top:20px; display:none; }
+    <meta charset="UTF-8">
+    <title>PPE Detection System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
 
-.loader {
-    border:6px solid #333;
-    border-top:6px solid red;
-    border-radius:50%;
-    width:60px; height:60px;
-    animation:spin 1s linear infinite;
-    margin:20px auto;
-    display:none;
-}
-@keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
-</style>
+        h1 {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+        }
+
+        .start {
+            background: #22c55e;
+            color: black;
+        }
+
+        .stop {
+            background: #ef4444;
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .box {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        img {
+            border-radius: 10px;
+            border: 2px solid #334155;
+        }
+
+        input[type="file"] {
+            margin-top: 10px;
+            color: white;
+        }
+
+        .upload-btn {
+            background: #38bdf8;
+            color: black;
+            margin-top: 10px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 10px;
+            color: #facc15;
+        }
+    </style>
+
+    <script>
+        function startCamera() {
+            document.getElementById("loading").style.display = "block";
+            fetch("/start").then(() => {
+                document.getElementById("video").src = "/video_feed";
+                document.getElementById("loading").style.display = "none";
+            });
+        }
+
+        function stopCamera() {
+            fetch("/stop");
+            document.getElementById("video").src = "";
+        }
+    </script>
 </head>
 
 <body>
-<h1>AI PPE Detection</h1>
 
-<button class="start" onclick="startCam()">▶ START</button>
-<button class="stop" onclick="stopCam()">⛔ STOP</button>
+<h1>AI-Based PPE Detection System</h1>
 
-<div class="loader" id="loader"></div>
-<img id="video"/>
+<div>
+    <button class="start" onclick="startCamera()">▶ Start Camera</button>
+    <button class="stop" onclick="stopCamera()">⏹ Stop Camera</button>
+    <div id="loading" class="loading">⏳ Loading camera...</div>
+</div>
 
-<script>
-function startCam(){
-    loader.style.display="block";
-    video.style.display="none";
-    fetch("/start").then(()=>{
-        video.src="/video_feed";
-        video.onload=()=>{
-            loader.style.display="none";
-            video.style.display="block";
-        }
-    });
-}
-function stopCam(){
-    fetch("/stop");
-    video.src="";
-    video.style.display="none";
-    loader.style.display="none";
-}
-</script>
+<div class="container">
+
+    <!-- LIVE CAMERA -->
+    <div class="box">
+        <h2>Live Detection</h2>
+        <img id="video" width="480">
+    </div>
+
+    <!-- IMAGE UPLOAD -->
+    <div class="box">
+        <h2>Upload Image</h2>
+
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="image" accept="image/*" required><br>
+            <button type="submit" class="upload-btn">Detect Image</button>
+        </form>
+
+        {% if result_image %}
+            <h3>Detection Result</h3>
+            <img src="{{ url_for('static', filename=result_image) }}" width="480">
+        {% endif %}
+    </div>
+
+</div>
+
 </body>
 </html>
