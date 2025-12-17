@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PPE Detection</title>
+<style>
+body { background:#111; color:white; text-align:center; font-family:Arial; }
+button { padding:15px 30px; font-size:18px; margin:10px; border:none; border-radius:8px; cursor:pointer; }
+.start { background:#00c853; }
+.stop { background:#d50000; }
+img { border:3px solid red; width:640px; margin-top:20px; display:none; }
+
+.loader {
+    border:6px solid #333;
+    border-top:6px solid red;
+    border-radius:50%;
+    width:60px; height:60px;
+    animation:spin 1s linear infinite;
+    margin:20px auto;
+    display:none;
+}
+@keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+</style>
+</head>
+
+<body>
+<h1>AI PPE Detection</h1>
+
+<button class="start" onclick="startCam()">▶ START</button>
+<button class="stop" onclick="stopCam()">⛔ STOP</button>
+
+<div class="loader" id="loader"></div>
+<img id="video"/>
+
+<script>
+function startCam(){
+    loader.style.display="block";
+    video.style.display="none";
+    fetch("/start").then(()=>{
+        video.src="/video_feed";
+        video.onload=()=>{
+            loader.style.display="none";
+            video.style.display="block";
+        }
+    });
+}
+function stopCam(){
+    fetch("/stop");
+    video.src="";
+    video.style.display="none";
+    loader.style.display="none";
+}
+</script>
+</body>
+</html>
