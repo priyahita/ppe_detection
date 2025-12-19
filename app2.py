@@ -6,9 +6,6 @@ from playsound import playsound
 
 app = Flask(__name__)
 
-# =========================
-# CONFIG
-# =========================
 MODEL_PATH = "model_ppe_tuned.pt"
 UPLOAD_FOLDER = "static/uploads"
 RESULT_FOLDER = "static/results"
@@ -16,9 +13,6 @@ RESULT_FOLDER = "static/results"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
-# =========================
-# LOAD MODEL
-# =========================
 model = YOLO(MODEL_PATH)
 
 camera_on = False
@@ -31,9 +25,6 @@ last_warning_time = {
 }
 WARNING_INTERVAL = 20
 
-# =========================
-# TEXT TO SPEECH (gTTS)
-# =========================
 def speak_warning(text):
     try:
         filename = "warning.mp3"
@@ -44,9 +35,6 @@ def speak_warning(text):
     except:
         pass
 
-# =========================
-# REALTIME CAMERA GENERATOR
-# =========================
 def gen_frames():
     global cap, camera_on
 
@@ -80,7 +68,6 @@ def gen_frames():
                 if "NO" in label:
                     missing_items.add(label)
 
-        # Warning logic
         warnings = []
         apparel = []
 
@@ -112,9 +99,6 @@ def gen_frames():
         yield (b"--frame\r\n"
                b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
-# =========================
-# ROUTES
-# =========================
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -123,7 +107,7 @@ def index():
 def start():
     global camera_on, cap
     camera_on = True
-    cap = cv2.VideoCapture(0)  # ganti ke 0 kalau perlu
+    cap = cv2.VideoCapture(0)  
     return "started"
 
 @app.route("/stop")
@@ -141,9 +125,6 @@ def video_feed():
         mimetype="multipart/x-mixed-replace; boundary=frame"
     )
 
-# =========================
-# IMAGE UPLOAD DETECTION
-# =========================
 @app.route("/upload", methods=["POST"])
 def upload_image():
     if "image" not in request.files:
@@ -186,8 +167,5 @@ def upload_image():
         result_image=f"results/{file.filename}"
     )
 
-# =========================
-# RUN APP
-# =========================
 if __name__ == "__main__":
     app.run(debug=True)
